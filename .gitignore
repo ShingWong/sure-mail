@@ -1,0 +1,45 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-web/
+build/
+*.tsbuildinfo
+
+# Test / coverage
+coverage/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Tool artifacts
+graphify-out/
+.cache/
+*.log
+
+# Project memory (local brain state — never committed; sure-examples convention)
+.positronic/
+
+# Python (for mixed projects)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Local test credentials/config — never commit
+.mail_test_*
+
+# npm publish token: must never be committed
+.npm-token
+
+# packaging work dir (SEA bundle + blob)
+scripts/.sea/

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>sure-mail preview — a mail client with a WASM core</title>
+    <meta
+      name="description"
+      content="A mail client whose logic lives in a headless WASM core. This static preview shows the interface; reading mail needs a local host on the same machine."
+    />
+    <link rel="canonical" href="https://positronic-ai.us/mail-beta/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="positronic" />
+    <meta property="og:title" content="sure-mail preview — a mail client with a WASM core" />
+    <meta
+      property="og:description"
+      content="A mail client whose logic lives in a headless WASM core. This static preview shows the interface; reading mail needs a local host on the same machine."
+    />
+    <meta property="og:url" content="https://positronic-ai.us/mail-beta/" />
+    <meta property="og:image" content="https://positronic-ai.us/assets/img/og-1200x630.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" href="data:," />
+  </head>
+  <body>
+    <!-- Boot content: what the page is, before the app mounts and for anyone
+         whose browser cannot run it. main.ts removes this once the shell takes
+         over; if start-up fails it stays, which is the useful fallback. -->
+    <div
+      id="boot"
+      style="
+        font: 16px/1.55 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        max-width: 40rem;
+        margin: 12vh auto;
+        padding: 0 1.25rem;
+        color: #1a1c22;
+      "
+    >
+      <h1 style="font-size: 1.6rem; margin: 0 0 0.6rem">sure-mail preview</h1>
+      <p style="margin: 0 0 0.8rem">
+        This page shows the client shell. Reading mail needs a local host running
+        on the same machine — mail credentials are deliberately never sent to a
+        page you did not start.
+      </p>
+      <p style="margin: 0">
+        <a href="/sure-mail/">Project status and how to run it</a> ·
+        <a href="/sure-mail/#wasi-server">Install the WASI server</a>
+      </p>
+    </div>
+
+    <!-- The document is only a mount point: the shell (h() factories) builds
+         the DOM and the skin engine injects all styling at runtime. -->
+    <div id="app"></div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
