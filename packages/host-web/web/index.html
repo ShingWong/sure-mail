@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>sure-mail host-web harness</title>
+    <style>
+      body { font: 14px/1.5 ui-monospace, monospace; margin: 2rem; color: #222; }
+      h1 { font-size: 1.1rem; }
+      .ok { color: #0a7d38; }
+      .fail { color: #b3261e; }
+      pre { background: #f5f5f5; padding: 1rem; overflow: auto; }
+    </style>
+  </head>
+  <body>
+    <h1>sure-mail browser host — smoke harness</h1>
+    <p>
+      Boots <code>createMailHost()</code> against the relay, then runs the
+      checks in <code>window.runChecks()</code>. The page itself is only a
+      harness — the app is the host package.
+    </p>
+    <pre id="out">booting…</pre>
+    <script type="module">
+      import { createMailHost } from "./host.js";
+
+      const out = document.getElementById("out");
+      const log = (line, cls) => {
+        const span = document.createElement("span");
+        span.className = cls ?? "";
+        span.textContent = line + "\n";
+        out.appendChild(span);
+      };
+
+      window.createMailHost = createMailHost;
+      window.harnessLog = log;
+
+      async function main() {
+        out.textContent = "";
+        const params = new URLSearchParams(location.search);
+        const relayUrl = params.get("relay") ?? "ws://127.0.0.1:8787";
+        const host = await createMailHost({
+          wasm: fetch(new URL("core.wasm", import.meta.url)),
+          relayUrl,
+          log: (level, msg) => level !== "debug" && log(`[${level}] ${msg}`),
+        });
+        window.mailHost = host;
+        log(`core ${host.version()}`, "ok");
+        // Boot the core the way the real CLI does (cli: core.init({accounts: rows})).
+        host.init({});
+        const persistent = await host.storeClient.ready();
+        log(`store ready (persistent: ${persistent})`, "ok");
+        log(
+          host.net.connected ? "relay connected" : "relay unavailable — local store only (read-only)",
+          host.net.connected ? "ok" : "warn",
+        );
+        log("host ready — window.mailHost is set", "ok");
+        window.__booted = true;
+      }
+
+      window.runChecks = async () => {
+        const host = window.mailHost;
+        host.init({});
+        log(`init -> ${host.init === undefined ? "n/a" : "ok"}`);
+        const opId = host.startOp("echo", { msg: "browser smoke" });
+        setTimeout(() => host.feedExternal("echo.data", { id: opId, echo: "done" }), 5);
+        const status = await host.drive(opId, { timeoutMs: 2000 });
+        log(`echo op -> ${status.state} ${JSON.stringify(status.result)}`, status.state === "done" ? "ok" : "fail");
+        const schema = await (async () => {
+          try { await host.ensureSchema("registry"); return "ok"; }
+          catch (err) { return `fail: ${err.message}`; }
+        })();
+        log(`registry schema -> ${schema}`, schema === "ok" ? "ok" : "fail");
+        const id = host.accountAdd({ address: "smoke@example.com", host: "127.0.0.1", port: 14143, tls: false });
+        log(`accountAdd -> ${id}`, id > 0 ? "ok" : "fail");
+        log(`accounts -> ${JSON.stringify(host.accountList())}`);
+        return "done";
+      };
+
+      main().catch((err) => {
+        log(`boot failed: ${err.message}`, "fail");
+        console.error(err);
+      });
+    </script>
+  </body>
+</html>

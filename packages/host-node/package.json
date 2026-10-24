@@ -1,0 +1,23 @@
+{
+  "name": "@shing.wong/sure-mail-host",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sure-mail Node host: reactor driver + net/store/dns/http ports for core.wasm",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('host-node: no build step (type-stripped TS)')\"",
+    "test": "node --test test/*.test.mjs",
+    "lint": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@shing.wong/sure-mail-core": "0.1.0",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.2"
+  },
+  "license": "MIT"
+}
