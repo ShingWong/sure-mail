@@ -1,0 +1,16 @@
+{
+  "name": "@shing.wong/sure-mail-flows",
+  "version": "0.1.0",
+  "private": true,
+  "description": "host-side op compositions shared by every sure-mail host (the send flow)",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('flows: no build step (type-stripped TS)')\"",
+    "test": "node --test test/*.test.mjs",
+    "lint": "tsc --noEmit -p tsconfig.json"
+  },
+  "license": "MIT"
+}
