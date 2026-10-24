@@ -1,0 +1,188 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref; keep main green at every commit.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: security, lint, build, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          # Floor implied by the repo's engines (>= 22.18: type-stripped TS
+          # execution and node:sqlite in the host).
+          node-version: '22'
+          cache: npm
+
+      # npm ci, not npm install: this is what verifies the committed lockfile
+      # is actually reproducible. All dependencies are registry packages
+      # (sure-ui / sure-state) or workspace links — no path dependencies.
+      - name: Install
+        run: npm ci
+
+      # A key/credential/PII leak must not reach main. Scans every tracked
+      # file; runs again in prepublishOnly where a package ships.
+      - name: Security scan
+        run: npm run security:check
+
+      # Build BEFORE lint: the hosts and the ui import
+      # `@shing.wong/sure-mail-core`, whose types live in the generated
+      # `packages/core/dist` (asc bindings). Linting a clean checkout without
+      # building first fails with TS2307 — verified locally.
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      # Builds core.wasm and runs every workspace suite. The browser suites
+      # (host-web smokes, the ui e2e/fidelity/visual runs) are env-gated, so
+      # they report as skipped here and `npm test` stays offline.
+      - name: Test
+        run: npm test
+
+      - name: Upload build output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: |
+            packages/core/dist
+            packages/*/dist-web
+          retention-days: 7
+
+  package:
+    name: single-file build (Linux)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # D18 step 1: one executable for this platform. The gate is not "it built"
+      # — a 121 MB file that builds proves nothing — but that the artifact
+      # answers as a CLI and serves the UI with the headers the browser needs.
+      # The binary embeds the built UI, so the UI has to exist first —
+      # and the UI build copies core.wasm out of the core workspace, so the
+      # full build (core → host → ui) has to run, not `build:web` alone.
+      - name: Build what the binary embeds
+        run: npm run build
+
+      - name: Package
+        run: npm run package
+
+      - name: Smoke — it answers as a CLI, and says which build it is
+        run: |
+          v="$(./dist/sure-mail --version)"
+          case "$v" in
+            "$(node -p 'require("./package.json").version')"*) ;;
+            *) echo "unexpected version output: $v"; exit 1 ;;
+          esac
+          case "$v" in
+            *"(build "*) ;;
+            *) echo "no build stamp in: $v"; exit 1 ;;
+          esac
+          echo "version: $v"
+
+      # The one that matters most: no repo, no node_modules, no checkout.
+      # A binary whose `doctor` only works inside the source tree is not a
+      # binary a user can run, and that is how it shipped once, briefly.
+      - name: Smoke — self-contained outside the checkout
+        run: |
+          mkdir -p /tmp/standalone && cp dist/sure-mail /tmp/standalone/
+          cd /tmp/standalone && ./sure-mail doctor
+
+      - name: Smoke — it serves the UI, isolated, with the wasm typed
+        run: |
+          ./dist/sure-mail --no-open --port 8799 &
+          for i in $(seq 1 30); do
+            curl -sf -o /dev/null http://127.0.0.1:8799/ && break
+            sleep 1
+          done
+          curl -sI http://127.0.0.1:8799/ | grep -qi "cross-origin-opener-policy: same-origin"
+          curl -sI http://127.0.0.1:8799/core.wasm | grep -qi "content-type: application/wasm"
+          kill %1
+
+      - name: Upload the binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: sure-mail-linux-x86_64
+          path: dist/sure-mail
+          retention-days: 7
+
+  package-windows:
+    name: single-file build (Windows)
+    runs-on: windows-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Build what the binary embeds
+        run: npm run build
+
+      - name: Package
+        run: npm run package
+
+      # Windows is the platform where "self-contained" is easiest to get wrong:
+      # a SEA .exe still resolves node_modules from its own directory, and the
+      # cache directory is under LOCALAPPDATA rather than ~/.cache.
+      - name: Smoke — it answers as a CLI, and says which build it is
+        shell: bash
+        run: |
+          set -e
+          v="$(./dist/sure-mail.exe --version)"
+          case "$v" in
+            "$(node -p 'require("./package.json").version')"*) ;;
+            *) echo "unexpected version output: $v"; exit 1 ;;
+          esac
+          case "$v" in
+            *"(build "*) ;;
+            *) echo "no build stamp in: $v"; exit 1 ;;
+          esac
+          echo "version: $v"
+
+      - name: Smoke — self-contained outside the checkout
+        shell: bash
+        run: |
+          set -e
+          mkdir -p "$RUNNER_TEMP/standalone"
+          cp dist/sure-mail.exe "$RUNNER_TEMP/standalone/"
+          cd "$RUNNER_TEMP/standalone"
+          ./sure-mail.exe doctor
+
+      - name: Upload the binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: sure-mail-windows-x86_64
+          path: dist/sure-mail.exe
+          retention-days: 7

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE clientConfig [
+  <!ENTITY junk "IGNORED">
+]>
+<!-- hostile fixture: namespaces, CDATA, entities, single quotes, authMethod,
+     a missing outgoing port, and a password-encrypted auth value -->
+<autoconfig:clientConfig xmlns:autoconfig="http://autoconfig.mozilla.org/v1.1/" version='1.1'>
+  <autoconfig:emailProvider id="odd.test">
+    <autoconfig:domain>odd.test</autoconfig:domain>
+    <autoconfig:incomingServer type='imap'>
+      <autoconfig:hostname><![CDATA[imap.odd.test]]></autoconfig:hostname>
+      <autoconfig:port>993</autoconfig:port>
+      <autoconfig:socketType>SSL</autoconfig:socketType>
+      <autoconfig:username>%EMAILLOCALPART%&amp;co</autoconfig:username>
+      <autoconfig:authMethod>password-cleartext</autoconfig:authMethod>
+    </autoconfig:incomingServer>
+    <autoconfig:outgoingServer type="smtp">
+      <autoconfig:hostname>smtp.odd.test</autoconfig:hostname>
+      <!-- no port on purpose: implicit TLS defaults to the canonical port -->
+      <autoconfig:socketType>SSL</autoconfig:socketType>
+      <autoconfig:authentication>password-encrypted</autoconfig:authentication>
+    </autoconfig:outgoingServer>
+  </autoconfig:emailProvider>
+</autoconfig:clientConfig>

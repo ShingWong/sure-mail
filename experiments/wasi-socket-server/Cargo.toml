@@ -1,0 +1,17 @@
+[package]
+name = "wasi-socket-server"
+version = "0.1.0"
+edition = "2021"
+description = "Minimal WASI socket server: proves listen/accept + outbound connect + DNS under wasmtime, so the same artifact can run on Linux, Windows and Android."
+license = "UNLICENSED"
+publish = false
+
+[[bin]]
+name = "wasi-socket-server"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true
+panic = "abort"
