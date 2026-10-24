@@ -1,0 +1,1 @@
+GARBAGE before any tag, not XML at all <>< </bogus> <incomingServer type="imap"><hostname>imap.garbage.test</hostname><port>993<socketType>SSL</socketType></incomingServer><outgoingServer type="smtp"><hostname>smtp.garbage.test</hostname><socketType>SSL</socketType></outgoingServer> trailing junk <broken< <tag without close

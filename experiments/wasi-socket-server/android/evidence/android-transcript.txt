@@ -1,0 +1,28 @@
+# WASI 0.2 socket server on the Android emulator — transcript
+
+$ adb shell getprop ro.build.version.release; getprop ro.build.version.sdk; getprop ro.product.cpu.abi
+16
+36
+x86_64
+
+$ adb shell ps -A -o PID,NAME,ARGS | grep wasi
+ 4057 wasi-runner                 wasi-runner ./wasi-socket-server.wasm listen 127.0.0.1:9100
+
+$ adb shell cd /data/local/tmp && ./wasi-runner ./wasi-socket-server.wasm connect 127.0.0.1:9100 hello-from-android-guest
+connected to 127.0.0.1:9100
+reply: hello-from-android-guest
+
+$ adb forward tcp:9100 tcp:9100 && node -e '...connect 9100...'   # from the dev box
+dev box got: "hello from the dev box\n"
+
+# listener stdout (the WASI server, running in wasmtime ON the emulator)
+listening on 127.0.0.1:9100
+accepted Some(127.0.0.1:39202)
+closed
+accepted Some(127.0.0.1:39955)
+closed
+
+$ adb shell cd /data/local/tmp && ./wasi-runner ./wasi-socket-server.wasm connect mail.mx1.us:143
+connected to mail.mx1.us:143
+reply: * OK [CAPABILITY IMAP4rev1 SASL-IR LOGIN-REFERRALS ID ENABLE IDLE LITERAL+ STARTTLS LOGINDISABLED] Dovecot ready.
+ping BAD Error in IMAP command received by server.

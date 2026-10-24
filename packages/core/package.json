@@ -1,0 +1,25 @@
+{
+  "name": "@shing.wong/sure-mail-core",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sure-mail headless core: AssemblyScript source compiled to dist/core.wasm",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/core.d.ts",
+      "default": "./dist/core.js"
+    },
+    "./wasm": "./dist/core.wasm"
+  },
+  "files": [
+    "dist",
+    "API.md"
+  ],
+  "scripts": {
+    "build": "node scripts/build.ts",
+    "test": "node --test test/*.test.mjs",
+    "lint": "tsc --noEmit -p tsconfig.json && node scripts/lint.ts",
+    "render:fts": "node --experimental-strip-types scripts/render-fts.mjs"
+  },
+  "license": "MIT"
+}
