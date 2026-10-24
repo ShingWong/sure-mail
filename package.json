@@ -1,0 +1,43 @@
+{
+  "name": "sure-mail",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A mail client whose entire logic lives in a headless core compiled to WASM, cleanly separated from every host",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @shing.wong/sure-mail-core && npm run build --workspace @shing.wong/sure-mail-host && npm run build --workspace @shing.wong/sure-mail-cli && npm run build --workspace @shing.wong/sure-mail-host-web && npm run build --workspace @shing.wong/sure-mail-ui",
+    "build:web": "npm run build --workspace @shing.wong/sure-mail-host-web && npm run build --workspace @shing.wong/sure-mail-ui",
+    "test": "npm run build && npm run test --workspaces --if-present && node --test test/*.test.mjs",
+    "lint": "npm run lint --workspaces --if-present",
+    "start": "node packages/cli/src/sure-mail.ts",
+    "start:web": "npm run start --workspace @shing.wong/sure-mail-ui",
+    "start:host-web": "node packages/host-web/scripts/serve.mjs --port 8789",
+    "test:browser": "npm run test:browser --workspace @shing.wong/sure-mail-ui",
+    "test:fidelity": "npm run test:fidelity --workspace @shing.wong/sure-mail-ui",
+    "test:visual": "npm run test:visual --workspace @shing.wong/sure-mail-ui",
+    "test:visual:update": "npm run test:visual:update --workspace @shing.wong/sure-mail-ui",
+    "security:check": "node scripts/security-check.mjs",
+    "package": "node scripts/package.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "assemblyscript": "0.28.20",
+    "typescript": "5.9.3",
+    "postject": "^1.0.0-alpha.6"
+  },
+  "engines": {
+    "node": ">=22.18"
+  },
+  "allowScripts": {
+    "esbuild": true
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ShingWong/sure-mail.git"
+  },
+  "homepage": "https://positronic-ai.us/sure-mail/"
+}

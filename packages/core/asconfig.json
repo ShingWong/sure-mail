@@ -1,0 +1,19 @@
+{
+  "targets": {
+    "debug": {
+      "outFile": "dist/core.wasm",
+      "debug": true
+    },
+    "release": {
+      "outFile": "dist/core.wasm",
+      "optimizeLevel": 3
+    }
+  },
+  "options": {
+    "bindings": "raw",
+    "exportRuntime": true,
+    "runtime": "incremental",
+    "noAssert": false,
+    "pedantic": false
+  }
+}
