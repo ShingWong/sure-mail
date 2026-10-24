@@ -1,0 +1,21 @@
+From: me@example.com
+To: you@example.com
+Subject: Anhang
+Date: Fri, 16 Oct 2026 12:00:00 +0000
+Message-ID: <att-1@example.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="----=_Part_att1examplecom_mixed"
+
+------=_Part_att1examplecom_mixed
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+
+Mit Anhang.
+
+------=_Part_att1examplecom_mixed
+Content-Type: text/csv; name*=UTF-8''%C3%9Cbersicht%202026.csv
+Content-Disposition: attachment; filename*=UTF-8''%C3%9Cbersicht%202026.csv
+Content-Transfer-Encoding: base64
+
+YSxiLGMKMSwyLDMK
+------=_Part_att1examplecom_mixed--
