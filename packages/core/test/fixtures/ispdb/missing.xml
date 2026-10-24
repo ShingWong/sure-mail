@@ -1,0 +1,14 @@
+<clientConfig>
+  <emailProvider id="bad.test">
+    <incomingServer type="imap">
+      <socketType>SSL</socketType>
+      <authentication>OAuth2</authentication>
+    </incomingServer>
+    <outgoingServer type="smtp">
+      <hostname>smtp.bad.test</hostname>
+      <port>465</port>
+      <socketType>SSL</socketType>
+      <authentication>password-cleartext</authentication>
+    </outgoingServer>
+  </emailProvider>
+</clientConfig>

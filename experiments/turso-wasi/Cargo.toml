@@ -1,0 +1,22 @@
+[package]
+name = "turso-wasi-probe"
+version = "0.1.0"
+edition = "2021"
+description = "E1: does Turso Database (SQLite-compatible, pure Rust) build and run as a wasm32-wasip2 component under wasmtime? Feeds D19 (engine-agnostic storage)."
+license = "UNLICENSED"
+publish = false
+
+[[bin]]
+name = "turso-wasi-probe"
+path = "src/main.rs"
+
+[dependencies]
+turso = "0.8.3"
+# Turso's Rust API is async; wasm32-wasip2 has no threads, so drive it with a
+# single-threaded executor rather than a runtime.
+futures = { version = "0.3", default-features = false, features = ["executor"] }
+
+[profile.release]
+opt-level = "s"
+lto = true
+strip = true
