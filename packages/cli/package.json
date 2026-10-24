@@ -1,0 +1,20 @@
+{
+  "name": "@shing.wong/sure-mail-cli",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sure-mail command-line client (Node host)",
+  "type": "module",
+  "bin": {
+    "sure-mail": "./src/sure-mail.ts"
+  },
+  "scripts": {
+    "build": "node -e \"console.log('cli: no build step (type-stripped TS)')\"",
+    "test": "node --test test/*.test.mjs",
+    "lint": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@shing.wong/sure-mail-flows": "0.1.0",
+    "@shing.wong/sure-mail-host": "0.1.0"
+  },
+  "license": "MIT"
+}

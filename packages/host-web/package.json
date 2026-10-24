@@ -1,0 +1,25 @@
+{
+  "name": "@shing.wong/sure-mail-host-web",
+  "version": "0.1.0",
+  "private": true,
+  "description": "sure-mail browser host: reactor driver + relay net port, OPFS store port (sqlite3.wasm worker) for core.wasm",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "lint": "tsc --noEmit -p tsconfig.json",
+    "start": "node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "@shing.wong/sure-mail-core": "0.1.0",
+    "@sqlite.org/sqlite-wasm": "3.53.4-build2"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0",
+    "playwright-core": "^1.64.1"
+  },
+  "license": "MIT"
+}
